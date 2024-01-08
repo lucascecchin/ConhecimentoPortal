@@ -23,7 +23,7 @@ namespace PortalCliente.API.Data.Mappings
             builder.Property(x => x.Nome)
                 .IsRequired()
                 .HasColumnName("Nome")
-                .HasColumnType("NVARCHAR")
+                .HasColumnType("VARCHAR")
                 .HasMaxLength(100);
 
             builder.Property(x => x.Email);

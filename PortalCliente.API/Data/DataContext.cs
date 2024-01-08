@@ -9,9 +9,10 @@ namespace PortalCliente.API.Data
 {
     public class DataContext : DbContext
     {
-        public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Cidade> Cidades { get; set; }
-
+        public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlServer("Server=localhost;Database=PortalCliente;User ID=sa;Password=15974;TrustServerCertificate=True");
@@ -19,8 +20,9 @@ namespace PortalCliente.API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new ClienteMap());
             modelBuilder.ApplyConfiguration(new CidadeMap());
+            modelBuilder.ApplyConfiguration(new ClienteMap());
+            modelBuilder.ApplyConfiguration(new UsuarioMap());
 
         }
     }
