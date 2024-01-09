@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PortalCliente.API.Attibutes;
 
 namespace PortalCliente.API.Controllers
 {
@@ -7,6 +8,7 @@ namespace PortalCliente.API.Controllers
     public class HomeController : ControllerBase
     {
         [HttpGet("")]
+        [ApiKey]
         public IActionResult Get()
         {
             return Ok();

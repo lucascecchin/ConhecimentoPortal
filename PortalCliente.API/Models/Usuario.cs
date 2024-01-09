@@ -10,8 +10,9 @@ namespace PortalCliente.API.Models
         public string Email { get; set; }
         public string Senha { get; set; }
         public TipoUsuario TipoUsuario { get; set; }
-    }
 
+    }
+       
     public enum TipoUsuario
     {
         [Description("Usuário")]

@@ -42,7 +42,7 @@ namespace PortalCliente.API.Data.Mappings
                 .IsRequired()
                 .HasColumnName("Senha")
                 .HasColumnType("VARCHAR")
-                .HasMaxLength(40);
+                .HasMaxLength(255);
 
         }
     }
