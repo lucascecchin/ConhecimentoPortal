@@ -44,6 +44,9 @@ namespace PortalCliente.API.Data.Mappings
                 .HasColumnType("VARCHAR")
                 .HasMaxLength(255);
 
+            builder.Property(x => x.Imagem)
+               .IsRequired(false);
+
         }
     }
 }

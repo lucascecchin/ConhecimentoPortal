@@ -9,6 +9,7 @@ namespace PortalCliente.API.Models
         public string Sobrenome { get; set; }
         public string Email { get; set; }
         public string Senha { get; set; }
+        public string Imagem { get; set; }
         public TipoUsuario TipoUsuario { get; set; }
 
     }

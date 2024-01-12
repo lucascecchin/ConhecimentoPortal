@@ -4,6 +4,7 @@ using PortalCliente.API.Data;
 using PortalCliente.API.Extension;
 using PortalCliente.API.Models;
 using PortalCliente.API.ViewModels;
+using PortalCliente.API.ViewModels.Cidades;
 
 namespace PortalCliente.API.Controllers
 {

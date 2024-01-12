@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PortalCliente.API.ViewModels
+namespace PortalCliente.API.ViewModels.Usuarios
 {
     public class RegisterViewModel
     {
