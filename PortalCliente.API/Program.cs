@@ -1,26 +1,17 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PortalCliente.API;
 using PortalCliente.API.Data;
 using PortalCliente.API.Services;
+using System.IO.Compression;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigureAuthentication(builder);
-
-builder.Services
-    .AddControllers()
-    .ConfigureApiBehaviorOptions(options =>
-    {
-        options.SuppressModelStateInvalidFilter = true;
-    });
-
-builder.Services.AddTransient<TokenService>();
-//builder.Services.AddTransient(); //Sempre cria um novo, em cada metodo cria um novo
-//builder.Services.AddScoped(); //É por requisião, então enquanto a requisição durar ele é valido, passando de metodo para método
-//builder.Services.AddSingleton(); //É um por APP, sempre que sobe a aplicação ele fica valido até que a aplicação sempre seja carregada novamente
-
+ConfigureMvc(builder);
 ConfigureServices(builder);
 
 // Add services to the container.
@@ -31,6 +22,16 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 LoadConfiguration(app);
 
+//Quando utiliza HTTPS e vem na requisição http, esse metodo faz automaticamente o redirecionamento
+//app.UseHttpsRedirection();
+
+//Sempre tem que ser nessa ordem, primeiro falar quem é para depois saber oque pode fazer..
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.UseStaticFiles();
+app.UseResponseCompression();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -38,16 +39,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//Sempre tem que ser nessa ordem, primeiro falar quem é para depois saber oque pode fazer..
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
 app.Run();
 
 void LoadConfiguration(WebApplication app)
 {
+
+    //Isso configuração serve para quando quer utilizar um token fixo nas apis
     Configuration.JwtKey = app.Configuration.GetValue<string>("JwtKey");
     Configuration.ApiKeyName = app.Configuration.GetValue<string>("ApiKeyName");
     Configuration.ApiKey = app.Configuration.GetValue<string>("ApiKey");
@@ -76,12 +73,39 @@ void ConfigureAuthentication(WebApplicationBuilder builder)
     });
 }
 
+void ConfigureMvc(WebApplicationBuilder builder)
+{
+    builder.Services.AddMemoryCache();
+    builder.Services.AddResponseCompression(options =>
+    {
+        // options.Providers.Add<BrotliCompressionProvider>();
+        options.Providers.Add<GzipCompressionProvider>();
+        // options.Providers.Add<CustomCompressionProvider>();
+    });
+    builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+    {
+        options.Level = CompressionLevel.Optimal;
+    });
+    builder
+        .Services
+        .AddControllers()
+        .ConfigureApiBehaviorOptions(options => { options.SuppressModelStateInvalidFilter = true; })
+        .AddJsonOptions(x =>
+        {
+            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+        });
+}
+
 void ConfigureServices(WebApplicationBuilder builder)
 {
-    //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    //builder.Services.AddDbContext<DataContext>(
-    //    options =>
-    //        options.UseSqlServer(connectionString));
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<DataContext>(
+        options =>
+            options.UseSqlServer(connectionString));
 
-    builder.Services.AddDbContext<DataContext>();
+    builder.Services.AddTransient<TokenService>();
+    //builder.Services.AddTransient(); //Sempre cria um novo, em cada metodo cria um novo
+    //builder.Services.AddScoped(); //É por requisião, então enquanto a requisição durar ele é valido, passando de metodo para método
+    //builder.Services.AddSingleton(); //É um por APP, sempre que sobe a aplicação ele fica valido até que a aplicação sempre seja carregada novamente
 }
